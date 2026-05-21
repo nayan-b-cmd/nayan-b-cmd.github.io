@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nayantara Bista</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #fefae0;
+      --pink: #f7c5c5;
+      --green: #4a7c59;
+      --green-light: #b7d7c0;
+      --green-border: #4a7c59;
+      --yellow: #f6e27a;
+      --text: #2c2c2c;
+      --white: #ffffff;
+      --card-shadow: 0 4px 24px rgba(74,124,89,0.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── floating blobs ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 420px; height: 420px; background: var(--pink); top: -100px; left: -100px; animation: drift1 14s ease-in-out infinite alternate; }
+    .blob-2 { width: 300px; height: 300px; background: var(--yellow); bottom: 80px; right: -60px; animation: drift2 18s ease-in-out infinite alternate; }
+    .blob-3 { width: 200px; height: 200px; background: var(--green-light); top: 50%; left: 60%; animation: drift1 12s ease-in-out infinite alternate-reverse; }
+
+    @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(40px, 30px) scale(1.1); } }
+    @keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-30px, -40px) scale(0.95); } }
+
+    /* ── hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3.2rem, 9vw, 7rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      animation: floatName 6s ease-in-out infinite;
+      letter-spacing: -0.02em;
+    }
+
+    @keyframes floatName {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero-tag {
+      font-family: 'DM Sans', sans-serif;
+      font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+      font-weight: 300;
+      color: var(--green);
+      margin-top: 18px;
+      letter-spacing: 0.04em;
+      font-style: italic;
+      animation: fadeSlide 1.2s ease forwards;
+      opacity: 0;
+      animation-delay: 0.4s;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-links {
+      margin-top: 30px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeSlide 1.2s ease forwards;
+      opacity: 0;
+      animation-delay: 0.8s;
+    }
+
+    .hero-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border: 1.5px solid var(--green-border);
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--green);
+      text-decoration: none;
+      background: var(--white);
+      transition: all 0.25s ease;
+    }
+
+    .hero-links a:hover {
+      background: var(--green);
+      color: var(--white);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(74,124,89,0.25);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      font-size: 0.78rem;
+      color: var(--green);
+      opacity: 0.6;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* ── section ── */
+    .section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 30px;
+    }
+
+    .section-label {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1.5px;
+      background: var(--green-light);
+    }
+
+    /* ── cards grid ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1.5px solid var(--green-border);
+      border-radius: 16px;
+      padding: 26px 24px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: cardIn 0.6s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 4px;
+      background: linear-gradient(90deg, var(--green-light), var(--yellow));
+    }
+
+    .card:hover {
+      transform: translateY(-6px) rotate(0.4deg);
+      box-shadow: 0 14px 36px rgba(74,124,89,0.16);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-meta {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .card-body {
+      font-size: 0.87rem;
+      color: #555;
+      line-height: 1.65;
+    }
+
+    /* pill tags */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      background: #f0f7f2;
+      color: var(--green);
+      border: 1px solid var(--green-light);
+      border-radius: 50px;
+      font-size: 0.73rem;
+      font-weight: 500;
+      padding: 3px 11px;
+    }
+
+    /* ── awards special layout ── */
+    .awards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .award-item {
+      background: var(--white);
+      border: 1.5px solid var(--green-border);
+      border-radius: 12px;
+      padding: 18px 22px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .award-item:hover {
+      transform: translateX(6px);
+      box-shadow: 0 8px 28px rgba(74,124,89,0.14);
+    }
+
+    .award-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .award-text { font-size: 0.9rem; color: #444; line-height: 1.55; }
+    .award-text strong { color: var(--text); font-weight: 600; }
+
+    /* ── about strip ── */
+    .about-strip {
+      position: relative;
+      z-index: 1;
+      background: var(--green);
+      color: var(--white);
+      padding: 56px 30px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .about-strip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(247,197,197,0.18) 0%, transparent 70%);
+    }
+
+    .about-strip p {
+      position: relative;
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: clamp(1rem, 2.2vw, 1.18rem);
+      line-height: 1.75;
+      font-weight: 300;
+      opacity: 0.95;
+    }
+
+    .about-strip em {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--yellow);
+    }
+
+    /* ── skills ── */
+    .skills-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .skill-pill {
+      background: var(--white);
+      border: 1.5px solid var(--green-border);
+      border-radius: 50px;
+      padding: 9px 18px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--green);
+      box-shadow: 0 2px 8px rgba(74,124,89,0.08);
+      transition: all 0.2s ease;
+    }
+
+    .skill-pill:hover {
+      background: var(--green);
+      color: var(--white);
+      transform: scale(1.05);
+    }
+
+    /* ── footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 0.82rem;
+      color: #999;
+    }
+
+    footer a { color: var(--green); text-decoration: none; }
+
+    /* ── responsive ── */
+    @media (max-width: 600px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+
+    /* stagger card animations */
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.12s; }
+    .card:nth-child(3) { animation-delay: 0.19s; }
+    .card:nth-child(4) { animation-delay: 0.26s; }
+    .card:nth-child(5) { animation-delay: 0.33s; }
+    .card:nth-child(6) { animation-delay: 0.40s; }
+    .card:nth-child(7) { animation-delay: 0.47s; }
+    .card:nth-child(8) { animation-delay: 0.54s; }
+  </style>
+</head>
+<body>
+
+  <!-- background blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <h1 class="hero-name">Nayantara Bista</h1>
+    <p class="hero-tag">self-learner — but genuinely passionate about everything that i take on!</p>
+    <div class="hero-links">
+      <a href="https://linkedin.com/in/nayantarabista" target="_blank">
+        <!-- linkedin icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.76 0-5 2.24-5 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5v-14c0-2.76-2.24-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.27c-.97 0-1.75-.79-1.75-1.76s.78-1.76 1.75-1.76 1.75.79 1.75 1.76-.78 1.76-1.75 1.76zm13.5 11.27h-3v-5.6c0-1.34-.03-3.07-1.87-3.07-1.87 0-2.16 1.46-2.16 2.97v5.7h-3v-10h2.88v1.37h.04c.4-.76 1.38-1.56 2.84-1.56 3.04 0 3.6 2 3.6 4.59v5.6z"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://github.com/nayan-b-cmd" target="_blank">
+        <!-- github icon -->
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.79 23.4c.6.1.83-.26.83-.57v-2c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.08-.74.08-.73.08-.73 1.2.09 1.83 1.24 1.83 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.68.83.57A12 12 0 0 0 12 .3"/></svg>
+        GitHub
+      </a>
+    </div>
+    <span class="scroll-hint">↓ scroll</span>
+  </section>
+
+  <!-- ── ABOUT STRIP ── -->
+  <div class="about-strip">
+    <p>Economics & Public Policy undergraduate at <em>Ashoka University</em>, with a minor in CS and Biology — interested in AI, life sciences, and economic policy. Raised $18,000+ across 7 social initiatives. National debate champion. Nepali.</p>
+  </div>
+
+  <!-- ── EXPERIENCE ── -->
+  <section class="section">
+    <h2 class="section-label">Experience</h2>
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-meta">2026 – Present · MIT Media Lab</div>
+        <div class="card-title">Ambassador — Project NANDA: Nepal Chapter</div>
+        <div class="card-body">Building Nepal's chapter of an MIT-backed open-source framework for AI agents. Coordinating local stakeholder outreach, documentation, and community onboarding.</div>
+        <div class="tags"><span class="tag">AI Governance</span><span class="tag">Open Source</span><span class="tag">Community</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-meta">2025 – Present · NPO</div>
+        <div class="card-title">Co-founder & Host — Project Young Minds</div>
+        <div class="card-body">Launched <em>The Leadership Seat</em> podcast. Partnered with United World Schools & Canopy Nepal to build recreation centres in 4 under-resourced rural schools.</div>
+        <div class="tags"><span class="tag">Podcast</span><span class="tag">Education</span><span class="tag">Social Impact</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-meta">Feb 2026 – May 2026</div>
+        <div class="card-title">Co-founder & Program Designer — Talk Shop</div>
+        <div class="card-body">Designed a structured English communication program for adults, professionals, and youth in India — addressing language equity and workforce readiness.</div>
+        <div class="tags"><span class="tag">Curriculum Design</span><span class="tag">Language Equity</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-meta">2025 · Karkhana Samuha</div>
+        <div class="card-title">Education Policy Researcher</div>
+        <div class="card-body">Comparative analysis of municipal vs. national education frameworks in Nepal. Authored evidence-based policy gap reports submitted for national governance review.</div>
+        <div class="tags"><span class="tag">Policy Research</span><span class="tag">Qualitative Methods</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-meta">2023 – 2025 · NGO</div>
+        <div class="card-title">Operations Manager — Flavours of Hope</div>
+        <div class="card-body">Led fundraising and operations securing $18,000+ across 6 projects — including a $3,500 water filtration plant (1,200 students), leukemia crisis fundraising, and 150 debate scholarships for marginalized students.</div>
+        <div class="tags"><span class="tag">NGO Ops</span><span class="tag">Fundraising</span><span class="tag">Global Health</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-meta">2024 – 2025</div>
+        <div class="card-title">General Member (Board) — Debate Network Nepal</div>
+        <div class="card-body">One of 3 high-school representatives on Nepal's national debating governance board. Contributed to policy reforms making competitive formats more equitable.</div>
+        <div class="tags"><span class="tag">Policy Reform</span><span class="tag">Governance</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-meta">2023 · Founding Member</div>
+        <div class="card-title">Campaign Lead — Malpi Outreach Program</div>
+        <div class="card-body">Raised $7,500 across 5 community projects. Led a 6-week Save Bagmati cleanup with 150+ volunteers, featured in National Times Daily. Launched free tutoring in Panauti village.</div>
+        <div class="tags"><span class="tag">Community Organizing</span><span class="tag">Environment</span></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── AWARDS ── -->
+  <section class="section" style="padding-top:0">
+    <h2 class="section-label">Awards & Recognition</h2>
+    <div class="awards-list">
+
+      <div class="award-item">
+        <div class="award-icon">🇺🇸</div>
+        <div class="award-text"><strong>US State Department — Girls in STEM</strong> · Fully funded national representative; awarded project grant for innovation in science and community.</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">🌏</div>
+        <div class="award-text"><strong>PBHS International Summit 2023 (USA)</strong> · Nepal Cultural Representative on Florida State TV, selected among all Nepali delegates across 13+ countries.</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">🏆</div>
+        <div class="award-text"><strong>National Debate Squad 2024</strong> · 4.0% acceptance rate — Nepal's most competitive national selection.</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">🥇</div>
+        <div class="award-text"><strong>Champions: National Debating Championship 2025</strong> · Top 3 nationally.</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">🥈</div>
+        <div class="award-text"><strong>Finalist: National Debating Championship 2024</strong> · Top 6 nationally.</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">🏅</div>
+        <div class="award-text"><strong>Champions: TISB India</strong> · India's largest student-led debate championship ($1,200 cash pool).</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">⭐</div>
+        <div class="award-text">
+          <strong>Quarter-Finalists: Stanford WSD Invitational</strong><br>
+          <strong>IIT Delhi Debutant, 15th Best Speaker</strong><br>
+          <strong>National Law School Debate, 6th Best Speaker</strong>
+        </div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">🎙️</div>
+        <div class="award-text">Finalist: Intertext AP · Semifinalist: Intertext WSD, MahaSangram BP, Debate Adhyaya III 2023, Vidushe BP 2023 · Organizer: Heartland WSD 2023, Environment WSD 2024</div>
+      </div>
+
+      <div class="award-item">
+        <div class="award-icon">✨</div>
+        <div class="award-text"><strong>15+ international honours · 10+ national honours</strong> — across debate, research, and public leadership.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SKILLS ── -->
+  <section class="section" style="padding-top:0">
+    <h2 class="section-label">Skills</h2>
+    <div class="skills-wrap">
+      <div class="skill-pill">Policy Analysis</div>
+      <div class="skill-pill">Qualitative Research</div>
+      <div class="skill-pill">AI Ethics Frameworks</div>
+      <div class="skill-pill">Python (Data Analysis)</div>
+      <div class="skill-pill">Macroeconomic Frameworks</div>
+      <div class="skill-pill">SDG Frameworks</div>
+      <div class="skill-pill">WASH Indicators</div>
+      <div class="skill-pill">NGO Operations</div>
+      <div class="skill-pill">Fundraising Strategy</div>
+      <div class="skill-pill">Curriculum Design</div>
+      <div class="skill-pill">Public Speaking</div>
+      <div class="skill-pill">Competitive Debate</div>
+      <div class="skill-pill">Podcast Production</div>
+      <div class="skill-pill">Google Analytics</div>
+      <div class="skill-pill">Biology</div>
+      <div class="skill-pill">Biochemistry</div>
+      <div class="skill-pill">Stakeholder Reporting</div>
+      <div class="skill-pill">Systems Thinking</div>
+      <div class="skill-pill">Cross-cultural Collaboration</div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <p>✉ <a href="mailto:bistanayantara@gmail.com">bistanayantara@gmail.com</a> &nbsp;·&nbsp; +977 9818305070 &nbsp;·&nbsp; <a href="https://linkedin.com/in/nayantarabista" target="_blank">LinkedIn</a> &nbsp;·&nbsp; <a href="https://github.com/nayan-b-cmd" target="_blank">GitHub</a></p>
+    <p style="margin-top:10px;">Made with intention ♡</p>
+  </footer>
+
+</body>
+</html>
